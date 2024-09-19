@@ -11,7 +11,6 @@ const ManageExpense = ({ route }) => {
   expense = route.params?.expense;
   const { title } = route.params;
   const [isDeleted, setIsDeleted] = useState(false); // Control flag
-  console.log("test");
   const navigation = useNavigation();
   const dispatch = useDispatch();
   // Convert the date string back to a Date object if needed
@@ -26,7 +25,6 @@ const ManageExpense = ({ route }) => {
     navigation.goBack(); // Navigate back to the previous screen
   };
   const addFunc = () => {
-    console.log();
     dispatch(
       expenseActions.addExpense({
         id: "e2" + new Date().toISOString,
@@ -60,6 +58,8 @@ const ManageExpense = ({ route }) => {
         expense={expense}
         cancelFunc={cancelFunc}
         addFunc={addFunc}
+        setIsDeleted={setIsDeleted}
+        title={title}
       />
 
       {title === "edit" ? (

@@ -5,7 +5,6 @@ import ExpenseList from "../components/ExpenseList";
 
 const ExpenseOutput = (props) => {
   const { title, expenseList, amount } = props;
-  console.log(amount);
   return (
     <View style={styles.container}>
       <PageHeadline title={title} amount={amount} />

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { Button, StyleSheet, Text, View } from "react-native";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import store from "./store";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Expenses from "./screens/Expenses";
@@ -14,23 +14,37 @@ import { useEffect } from "react";
 import { expenseActions } from "./store/expenseSlice";
 import { DUMMY_EXPENSES } from "./dummy";
 import ManageExpense from "./screens/ManageExpense";
+import { useApiHelper } from "./apiHelper";
+import { GET_EXPENSES } from "./URLS";
+import { apiCall } from "./apiCall";
+import LoadingSpinner from "./components/LoadingSpinner";
+import StatusBanner from "./components/StatusBanner";
 
 function App({ navigation }) {
-  console.log(navigation, "here");
-
+  const auth = useSelector((state) => state.auth);
+  const { handleApiCall } = useApiHelper();
   const Tab = createBottomTabNavigator();
   const dispatch = useDispatch();
-  const setList = () => {
-    dispatch(expenseActions.setExpenses(DUMMY_EXPENSES));
+  const setList = async () => {
+    //dispatch(expenseActions.setExpenses(DUMMY_EXPENSES));
+    //const data = await apiCall("GET", GET_EXPENSES, {});
+
+    //console.log(data, "in app");
+    handleApiCall(
+      "GET",
+      GET_EXPENSES,
+      {},
+      (data) => {
+        dispatch(expenseActions.setExpenses(data.data));
+      },
+      () => {}
+    );
   };
   useEffect(() => {
     setList();
   }, []);
   function MyTabs() {
-    console.log(navigation, "here");
-
     const handlePress = (navigation) => {
-      console.log(navigation, "here");
       navigation.navigate("ManageExpense", { title: "add" });
     };
     return (
@@ -88,6 +102,8 @@ function App({ navigation }) {
     <View style={styles.container}>
       <SafeAreaProvider style={styles.container}>
         <View style={styles.container}>
+          <LoadingSpinner />
+          <StatusBanner />
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Home">
               {/* <Stack.Screen name="Home" component={Categories} /> */}
@@ -128,5 +144,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#200364",
+    position: "relative",
   },
 });

@@ -5,14 +5,22 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { TextInput } from "react-native-paper";
 import * as Yup from "yup";
 import MyButton from "./MyButton";
+import { useDispatch } from "react-redux";
+import { expenseActions } from "../store/expenseSlice";
+import { ADD_EXPENSE, EDIT_EXPENSE, GET_EXPENSES } from "../URLS";
+import { apiCall } from "../apiCall";
+import { useApiHelper } from "../apiHelper";
 
 const generateUniqueId = () => {
   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
 const ExpenseForm = (props) => {
+  const { handleApiCall } = useApiHelper();
+  const dispatch = useDispatch();
   const [errors, setErrors] = useState({});
-  const { expense, cancelFunc, addFunc, buttonTitle } = props;
+  const { expense, cancelFunc, addFunc, buttonTitle, setIsDeleted, title } =
+    props;
   const expenseSchema = Yup.object().shape({
     amount: Yup.number()
       .min(0.01, "Amount must be greater than 0")
@@ -22,18 +30,62 @@ const ExpenseForm = (props) => {
   });
   const validateInputs = async () => {
     try {
-      await expenseSchema.validate(inputs, { abortEarly: false });
+      const res = await expenseSchema.validate(inputs, { abortEarly: false });
+      console.log(res, "validateInputs");
       setErrors({}); // Clear errors if validation passes
+      return res;
     } catch (err) {
       const validationErrors = {};
       err.inner.forEach((error) => {
         validationErrors[error.path] = error.message;
       });
       setErrors(validationErrors); // Set validation errors
+      return false;
     }
   };
-  const handleSubmit = () => {
-    validateInputs(); // Validate on submit
+  const handleSubmit = async () => {
+    //const data = await apiCall("GET", GET_EXPENSES, {});
+    const exp = await validateInputs(); // Validate on submit
+
+    try {
+      if (title === "edit") {
+        const newExpense = { ...exp, id: expense.id };
+        handleApiCall(
+          "POST",
+          EDIT_EXPENSE,
+          newExpense,
+          (data) => {
+            dispatch(expenseActions.setExpenses(data.data));
+          },
+          () => {}
+        );
+        // dispatch(expenseActions.editExpense(newExpense));
+        // console.log(newExpense, "after");
+      } else {
+        if (exp) {
+          handleApiCall(
+            "POST",
+            ADD_EXPENSE,
+            exp,
+            (data) => {
+              dispatch(expenseActions.setExpenses(data.data));
+            },
+            () => {}
+          );
+          // const newExpense = {
+          //   id: "e2" + new Date().toISOString(),
+          //   description: exp.description,
+          //   amount: exp.amount,
+          //   date: exp.date,
+          // };
+
+          // dispatch(expenseActions.addExpense(newExpense));
+        }
+      }
+      setIsDeleted(true);
+    } catch (error) {
+      console.log(error, "after");
+    }
   };
   const [inputs, setInputs] = useState({
     description: "",
@@ -52,7 +104,6 @@ const ExpenseForm = (props) => {
       }));
     }
   };
-  console.log(expense);
   useEffect(() => {
     if (expense) {
       let date = new Date(expense.date);
@@ -93,8 +144,6 @@ const ExpenseForm = (props) => {
   const handlePicker = () => {
     setShowPicker(true);
   };
-
-  console.log("after render");
 
   return (
     <View style={styles.container}>

@@ -1,19 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
-const FavoriteSlice = createSlice({
-  name: "game",
-  initialState: { favorites: [], scoreArray: [] },
+const LoadingSlice = createSlice({
+  name: "loading",
+  initialState: { loading: false },
   reducers: {
-    setFavorites(state, action) {
-      state.favorites.push(action.payload);
-    },
-    popFavorites(state, action) {
-      state.favorites = state.favorites.filter((id) => {
-        return id !== action.payload;
-      });
+    setLoading(state, action) {
+      state.loading = action.payload;
     },
   },
 });
 
-export default FavoriteSlice;
+export default LoadingSlice;
 
-export const favoriteAction = FavoriteSlice.actions;
+export const loadingAction = LoadingSlice.actions;
