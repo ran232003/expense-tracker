@@ -7,6 +7,8 @@ const Expenses = () => {
   const expenseList = useSelector((state) => {
     return state.expense;
   });
+  console.log("Expenses Total");
+
   return (
     <ExpenseOutput
       title="Total"

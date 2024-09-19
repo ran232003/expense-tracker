@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Image } from "react-native";
-import { Banner, Button, Snackbar } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Snackbar } from "react-native-paper";
 import { useSelector, useDispatch } from "react-redux";
-import { bannerAction, hideBanner } from "../store/bannerSlice"; // Import the action
+import { bannerAction } from "../store/bannerSlice";
 
 const StatusBanner = () => {
   const dispatch = useDispatch();
-  const { visible, message, status } = useSelector((state) => state.banner); // Assuming you have a banner slice
-
-  console.log(visible, message, status);
+  const { visible, message, status } = useSelector((state) => state.banner);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
 
   useEffect(() => {
     if (visible) {
       setSnackbarVisible(true);
-      // Automatically hide the Snackbar after 2 seconds
       const timer = setTimeout(() => {
         setSnackbarVisible(false);
-        dispatch(bannerAction.hideBanner()); // Dispatch action to hide the banner in the state
+        dispatch(bannerAction.hideBanner());
       }, 2000);
 
-      return () => clearTimeout(timer); // Cleanup the timer if the component unmounts or visible changes
+      return () => clearTimeout(timer);
+    } else {
+      setSnackbarVisible(false); // Ensure the Snackbar hides immediately
     }
   }, [visible, dispatch]);
+
+  if (!snackbarVisible) {
+    return null; // Do not render the component if snackbarVisible is false
+  }
+
   return (
     <View style={styles.container}>
       <Snackbar
@@ -45,16 +49,16 @@ export default StatusBanner;
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    bottom: 0, // Position it at the bottom of the screen
+    bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 1000, // Ensure it's above other components
-    padding: 16, // Add some padding for spacing from the bottom
-    alignItems: "center", // Center the Snackbar horizontally
+    zIndex: 10, // Adjust zIndex as needed
+    padding: 16,
+    alignItems: "center",
   },
   snackbar: {
-    width: "95%", // Adjust width if needed
-    // alignSelf: "center", // Center the Snackbar horizontally
+    width: "95%",
+    marginBottom: 50, // Ensure it doesn't overlap with tab bar
   },
   errorSnackbar: {
     backgroundColor: "red",

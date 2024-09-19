@@ -7,6 +7,7 @@ const RecentExpenses = () => {
   const expenseList = useSelector((state) => {
     return state.expense;
   });
+  console.log("RecentExpenses");
   return (
     <ExpenseOutput
       title="Last 7 Days"

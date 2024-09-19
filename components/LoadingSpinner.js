@@ -10,6 +10,8 @@ const LoadingSpinner = () => {
   });
   console.log(loading, "loading");
   if (!loading) {
+    console.log(loading, "dont loading");
+
     return null; // Do not render if loading is false
   }
   return (
